@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="AlgorithmVisualization.ExecutionControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AlgorithmVisualization"
+             mc:Ignorable="d" 
+             d:DesignHeight="35" d:DesignWidth="200" Height="35">
+    <DockPanel MinWidth="200">
+        <!--<Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>-->
+        <Button x:Name="PlayButton" DockPanel.Dock="Right" Content="Play" Click="playButton_Click" Width="40" Margin="5"></Button>
+        <GroupBox Header="Speed" FontSize="8" MinWidth="150">
+            <Slider x:Name="SpeedSlider" Margin="5,0,5,0" VerticalAlignment="Top" IsDirectionReversed="True"  ValueChanged="Slider_ValueChanged"/>
+        </GroupBox>
+        <!--<Label Content="Speed" HorizontalAlignment="Center" Height="25" VerticalAlignment="Bottom" Width="44"/>-->
+
+    </DockPanel>
+</UserControl>
