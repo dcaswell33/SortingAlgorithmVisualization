@@ -5,62 +5,107 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AlgorithmVisualization"
         mc:Ignorable="d"
-        Title="Algorithms" Height="409.933" Width="605.418" ContentRendered="MainWindow1_ContentRendered">
+        Title="Search Algorithms" Width="600" MaxHeight="800" ContentRendered="MainWindow1_ContentRendered" SizeChanged="MainWindow1_SizeChanged" SizeToContent="Height" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="400"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <!--<ColumnDefinition Width="39*"/>-->
-            <ColumnDefinition Width="300*"/>
-            <ColumnDefinition Width="300*"/>
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-        <local:ControlChartDisplay x:Name="GraphicVisualization" Grid.Column="0" Margin="0,30,0.2,0.2" Grid.Row="0"
-                                   Grid.RowSpan="2"/>
-        <ComboBox x:Name="ComboBoxAlgorithm"  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" Width="249" Height="20"
-                  Grid.Row="0"  Grid.Column="0" SelectionChanged="comboBoxAlgorithm_SelectionChanged"/>
-        <DockPanel Grid.Column="1"  Margin="2" Grid.Row="3" VerticalAlignment="Top">
-            <Button Content="Analyze" Margin="5" Click="ButtonAnalyze_OnClick" Width="50"  DockPanel.Dock="Right"/>
-            <local:ExecutionControl x:Name="ExecutionControl" Height="44" VerticalAlignment="Center" 
-                                SpeedChanged="executionControl_SpeedChanged" StartStopChanged="executionControl_StartStopChanged"/>
-        </DockPanel>
-        <!--<ScrollViewer  Grid.Row="1" Grid.Column="2">
-            <TextBlock x:Name="PseudoCodeTextBlock" HorizontalAlignment="Left" Margin="0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" FontSize="10"/>
-            -->
-        <!--<RichTextBox x:Name="RichTextBoxPseudoCode" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" FontSize="10" />-->
-        <!--
-        </ScrollViewer>-->
-
-        <DataGrid x:Name="DataGridDisplay" Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-        <TextBlock x:Name="RunTimeTextBlock" Text="Execution Completed in 0 ms" Grid.Row="2" Grid.Column="0" Margin="5" HorizontalAlignment="Stretch"/>
-        <DockPanel Grid.Row="3" Grid.Column="0">
-            <Button x:Name="MixButton" DockPanel.Dock="Right" Content="Initialize" Click="ButtonMixData" Width="48" Margin="2,10" Height="30" VerticalAlignment="Center"></Button>
-            <GroupBox Header="Data Initialization" FontSize="8" MinWidth="150">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <ComboBox Grid.Column="0" x:Name="ComboBoxInitialSortingPolicy" Margin="5" SelectedIndex="0">
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="45"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="45"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <!--<ColumnDefinition Width="39*"/>-->
+                <ColumnDefinition Width="300*"/>
+                <ColumnDefinition Width="300*"/>
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Row="0" Grid.ColumnSpan="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <GroupBox Header="Algorithm" FontSize="8" Grid.Row="0"  Grid.Column="0" >
+                    <ComboBox x:Name="ComboBoxAlgorithm" Margin="5"
+                    SelectionChanged="comboBoxAlgorithm_SelectionChanged"/>
+                </GroupBox>
+                <GroupBox Header="Initial Order" FontSize="8" Grid.Column="1" Grid.Row="0" >
+                    <ComboBox x:Name="ComboBoxInitialSortingPolicy" Margin="5" SelectedIndex="0">
                         <ComboBoxItem>Random</ComboBoxItem>
                         <ComboBoxItem>Ascending</ComboBoxItem>
                         <ComboBoxItem>Descending</ComboBoxItem>
                     </ComboBox>
-                    <ComboBox Grid.Column="1" x:Name="ComboBoxDataSize" Margin="5" SelectedValuePath="Content" SelectedIndex="2">
+                </GroupBox>
+                <GroupBox Header="Number of Elements" FontSize="8" Grid.Column="2">
+                    <ComboBox x:Name="ComboBoxDataSize" Margin="5" SelectedValuePath="Content" SelectedIndex="2">
                         <ComboBoxItem>10</ComboBoxItem>
                         <ComboBoxItem>50</ComboBoxItem>
                         <ComboBoxItem>100</ComboBoxItem>
                         <ComboBoxItem>500</ComboBoxItem>
                         <ComboBoxItem>1000</ComboBoxItem>
+                        <ComboBoxItem>10000</ComboBoxItem>
+                        <ComboBoxItem>100000</ComboBoxItem>
+                        <ComboBoxItem>1000000</ComboBoxItem>
                     </ComboBox>
-                </Grid>
+                </GroupBox>
+            </Grid>
+
+            <local:ControlChartDisplay x:Name="GraphicVisualization" Grid.Column="0" Margin="0,0,0.2,0.2" Grid.Row="1" />
+            <DockPanel Grid.Column="0" Grid.ColumnSpan="2" Margin="2" Grid.Row="3" VerticalAlignment="Top">
+                <Button x:Name="MixButton" DockPanel.Dock="Left" Content="Initialize" Click="ButtonMixData" Width="55" Height="35" VerticalAlignment="Center"></Button>
+
+                <local:ExecutionControl x:Name="ExecutionControl" Height="44" VerticalAlignment="Center" 
+                                SpeedChanged="executionControl_SpeedChanged" StartStopChanged="executionControl_StartStopChanged"/>
+            </DockPanel>
+
+            <DataGrid x:Name="DataGridDisplay" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <TextBlock x:Name="RunTimeTextBlock" Text="Execution Completed in 0 ms" Grid.Row="2" Grid.Column="0" Margin="5" HorizontalAlignment="Stretch"/>
+            <DockPanel Grid.Row="3" Grid.Column="0">
+
+
+            </DockPanel>
+        </Grid>
+        <Expander Grid.Row="1" Header="Analyze">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="147*"/>
+                <ColumnDefinition Width="148*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <GroupBox Grid.Row="0" Grid.Column="0" Header="Number Runs" FontSize="8" MinWidth="50">
+                    <ComboBox Grid.Column="0" x:Name="NumberRuns" Margin="5" SelectedValuePath="Content" SelectedIndex="0">
+                        <ComboBoxItem>10</ComboBoxItem>
+                        <ComboBoxItem>25</ComboBoxItem>
+                        <ComboBoxItem>50</ComboBoxItem>
+                        <ComboBoxItem>75</ComboBoxItem>
+                        <ComboBoxItem>100</ComboBoxItem>
+                    </ComboBox>
+                </GroupBox>
+                <Button x:Name="RunButton" Grid.Column="1" Content="Run Analysis" Height="30" Margin="5" Click="RunButton_Click"/>
+            </Grid>
+
+            <GroupBox  Grid.Column="2" Grid.RowSpan="2" Header="Run Output" FontSize="8" MinWidth="50">
+                <DataGrid x:Name="DataGridAnalysisDisplay" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            </GroupBox>
+            <GroupBox  Grid.Row="1" Header="Execution Log" FontSize="8" MinWidth="50" Grid.ColumnSpan="2">
+                <TextBlock x:Name="LogTextBlock" HorizontalAlignment="Stretch" TextWrapping="Wrap" Margin="5" VerticalAlignment="Stretch"/>
             </GroupBox>
 
-        </DockPanel>
-    </Grid>
+        </Grid>
+        </Expander>
+    </Grid>        
 </Window>

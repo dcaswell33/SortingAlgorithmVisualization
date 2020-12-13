@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using AlgorithmVisualization.Algorithms;
-
 namespace AlgorithmVisualization
 {
     /// <summary>
@@ -18,29 +15,137 @@ namespace AlgorithmVisualization
         private Algorithms.AbstractAlgorithm _algorithm;
 
         private List<ExecutionTiming> TimeOfExecutions { get; set; }
+        private bool _showAllSorts = false;
+
+        private Type[] _orderedSortingAlgorithms = null;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            UsernameEntry usernameEntry = new UsernameEntry();
+            if (usernameEntry.ShowDialog() ?? true)
+            {
+                string userNameAsSHA = LostOrdering.userNameAsSHA(usernameEntry.userName);
+                Debug.WriteLine(userNameAsSHA);
+
+                //cs220lovessorting
+                if (userNameAsSHA == "fe8f82dd4271c78f269b8e8dc20b66bafda6775f55daf84a48d8ac7199c3276c")
+                {
+                    // Show all of the sorts
+                    _showAllSorts = true;
+                    StudentKeyGeneratorWindow generator = new StudentKeyGeneratorWindow();
+                    generator.Show();
+                }                
+                else
+                {
+                    _orderedSortingAlgorithms = LostOrdering.SetupLostSortOrdering(userNameAsSHA);
+                }
+            }
+            else
+            {
+                this.Close();
+            }
+
             SetupObjectivesComboBox();
 
-            //TimeOfExecutions = new List<ExecutionTiming>();
-
-            // Tests the data grid
-            //TimeOfExecutions.Add(new ExecutionTiming(50,10001));
-            //TimeOfExecutions.Add(new ExecutionTiming(100, 100201));
-            //DataGridDisplay.ItemsSource = TimeOfExecutions;
-
-            _data = new IntegerArrayWithEvents(Properties.Settings.Default.NumberItems, 
+            _data = new IntegerArrayWithEvents(Properties.Settings.Default.NumberItems,
                 Properties.Settings.Default.MaxIntSize);
             _data.MixNumbersWithoutEvents(InitialOrderSelected);
             _data.AlgorithmFinished += _data_AlgorithmFinished;
+        }
+
+        private void MainWindow1_ContentRendered(object sender, EventArgs e)
+        {
+            GraphicVisualization.Setup(_data);
+        }
+
+        public void ToggleCodeWindow(bool showCodeWindow)
+        {
+            if (showCodeWindow)
+            {
+                GraphicVisualization.SetValue(Grid.ColumnSpanProperty, 1);
+                DataGridDisplay.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                GraphicVisualization.SetValue(Grid.ColumnSpanProperty, 2);
+                DataGridDisplay.Visibility = Visibility.Hidden;
+            }
         }
 
         private void _data_AlgorithmFinished(EventArgs e)
         {
             ExecutionControl.ResetExecution();
         }
+
+        #region Algorithm Parameterization
+
+        #region Algorithm ComboBox GUI
+        private Algorithms.AbstractAlgorithm GetObjectiveFunction()
+        {
+            return (Algorithms.AbstractAlgorithm)Activator.CreateInstance((Type)((ComboBoxItem)ComboBoxAlgorithm.SelectedItem).Tag);
+        }
+
+        private void SetupObjectivesComboBox()
+        {
+
+            if (_showAllSorts)
+            {
+                var listOfBs = (from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
+                                from assemblyType in domainAssembly.GetTypes()
+                                where typeof(Algorithms.AbstractAlgorithm).IsAssignableFrom(assemblyType)
+                                select assemblyType).ToArray();
+
+                foreach (var subclass in listOfBs)
+                {
+                    if (!subclass.IsAbstract)
+                    {
+                        ComboBoxItem newItem = new ComboBoxItem
+                        {
+                            Content = subclass.Name,
+                            Tag = subclass
+                        };
+                        ComboBoxAlgorithm.Items.Add(newItem);
+                    }
+                }
+            }
+            else
+            {
+                for (int index = 0; index < _orderedSortingAlgorithms.Length; index++)
+                {
+                    ComboBoxItem newItem = new ComboBoxItem
+                    {
+                        Content = "Lost Sort " + index,
+                        Tag = _orderedSortingAlgorithms[index]
+                    };
+                    ComboBoxAlgorithm.Items.Add(newItem);
+                }
+            }
+            ComboBoxAlgorithm.SelectedIndex = 0;
+        }
+
+        private void comboBoxAlgorithm_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string[] codeString = GetObjectiveFunction().CodeString();
+
+            if (codeString.Length == 1) { ToggleCodeWindow(false);  }
+            else {
+                ToggleCodeWindow(true);
+                DataGridDisplay.GridLinesVisibility = DataGridGridLinesVisibility.None;
+                DataGridDisplay.HeadersVisibility = DataGridHeadersVisibility.None;
+                DataGridDisplay.ItemsSource = GetObjectiveFunction().CodeString().Select(x => new { Value = x }).ToList();
+            }
+
+            if (_algorithm != null)
+            {
+                // Stop any execution and re-randomize the data
+                _algorithm.AllowRun = false;
+                ButtonMixData(this, null);
+            }
+        }
+
+        #endregion
 
         private IntegerArrayWithEvents.InitialOrdering InitialOrderSelected
         {
@@ -57,50 +162,22 @@ namespace AlgorithmVisualization
 
         private int NumDataElementsSelected => Convert.ToInt32(ComboBoxDataSize.SelectedValue.ToString());
 
+        #endregion
+
+        #region Algorithm Visualization
+
         private void ButtonMixData(object sender, RoutedEventArgs e)
         {
             int numData = NumDataElementsSelected;
+            //Ensure we don't create too much data for the visualization
+            if (numData > 500) numData = 500;  
+
             if (_data.Count != numData)
                 _data.ReInitializeData(numData, numData);
             _data.MixNumbersWithoutEvents(InitialOrderSelected);
             if (_algorithm != null) _algorithm.AllowRun = false;
 
             GraphicVisualization?.Setup(_data);
-            //GraphicVisualization.Refresh();
-        }
-
-        #region Algorithm ComboBox GUI
-        private Algorithms.AbstractAlgorithm GetObjectiveFunction()
-        {
-            return (Algorithms.AbstractAlgorithm)Activator.CreateInstance((Type)((ComboBoxItem)ComboBoxAlgorithm.SelectedItem).Tag);
-        }
-
-        private void SetupObjectivesComboBox()
-        {
-            var listOfBs = (from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
-                            from assemblyType in domainAssembly.GetTypes()
-                            where typeof(Algorithms.AbstractAlgorithm).IsAssignableFrom(assemblyType)
-                            select assemblyType).ToArray();
-
-            foreach (var subclass in listOfBs)
-            {
-                if (!subclass.IsAbstract)
-                {
-                    ComboBoxItem newItem = new ComboBoxItem
-                    {
-                        Content = subclass.Name,
-                        Tag = subclass
-                    };
-                    ComboBoxAlgorithm.Items.Add(newItem);
-                }
-            }
-            ComboBoxAlgorithm.SelectedIndex = 0;
-        }
-        #endregion
-
-        private void MainWindow1_ContentRendered(object sender, EventArgs e)
-        {
-            GraphicVisualization.Setup(_data);
         }
 
         private void executionControl_SpeedChanged(SpeedChangedEventArgs e)
@@ -112,9 +189,6 @@ namespace AlgorithmVisualization
         {
             if (e.Play)
             {
-                // Start
-                //_algorithm = GetObjectiveFunction();
-                //_algorithm.Run(_data);
                 RunAlgorithmForTimer();
             }
             else
@@ -124,7 +198,15 @@ namespace AlgorithmVisualization
             }
         }
 
-        //private long LastExecutionTime { get; set; }
+        private async void RunAlgorithmForTimer()
+        {
+            System.Diagnostics.Stopwatch sw = Stopwatch.StartNew();
+            _algorithm = GetObjectiveFunction();
+            _algorithm.AllowRun = true;
+            await _algorithm.Run(_data);
+            sw.Stop();
+            UpdateLastExecutionTime(sw.ElapsedMilliseconds);
+        }
 
         private void UpdateLastExecutionTime(long value)
         {
@@ -134,63 +216,70 @@ namespace AlgorithmVisualization
                 return;
             }
 
-            //LastExecutionTime = value;
             RunTimeTextBlock.Text="Execution Completed in " + value + " ms";
         }
 
-        private async void RunAlgorithmForTimer()
+
+        #endregion
+
+        #region Analysis
+
+        private int MaximumValue => Convert.ToInt32(ComboBoxDataSize.SelectedValue.ToString());
+        private int NumberTestPoints => Convert.ToInt32(NumberRuns.SelectedValue.ToString());
+
+        private void UpdateTable()
         {
-            System.Diagnostics.Stopwatch sw = Stopwatch.StartNew();
-            _algorithm = GetObjectiveFunction();
-            await _algorithm.Run(_data);
-            sw.Stop();
-            UpdateLastExecutionTime(sw.ElapsedMilliseconds);
-            //MessageBox.Show("Execution Completed in " + sw.ElapsedMilliseconds);
+            DataGridAnalysisDisplay.ItemsSource = runs;
         }
 
-        private void comboBoxAlgorithm_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private List<AnalysisRun> runs;
+
+        private void SetActive(bool value)
         {
-            DataGridDisplay.GridLinesVisibility = DataGridGridLinesVisibility.None;
-            DataGridDisplay.HeadersVisibility = DataGridHeadersVisibility.None;
-            DataGridDisplay.ItemsSource = GetObjectiveFunction().CodeString().Select(x => new { Value = x }).ToList();
-            //PseudoCodeTextBlock.Text = "";
-            //string[] code = GetObjectiveFunction().CodeString();
-            //int highlightedRow = -1;
-            //int index = 0;
-            //foreach (string s in code)
-            //{
-            //    if (index == highlightedRow)
-            //    {
-            //        PseudoCodeTextBlock.Inlines.Add(new Run(s + "\n") { Background = Brushes.Yellow });
-            //    }
-            //    else
-            //    {
-            //        PseudoCodeTextBlock.Inlines.Add(s + "\n");
-            //    }
-            //    index++;
-            //}
+            ComboBoxInitialSortingPolicy.IsEnabled = value;
+            ComboBoxDataSize.IsEnabled = value;
+            ComboBoxInitialSortingPolicy.IsEnabled = value;
+            ComboBoxAlgorithm.IsEnabled = value;
+            NumberRuns.IsEnabled = value;
+            RunButton.IsEnabled = value;
         }
-
-        private async Task<long> RunAlgorithmForTime(AbstractAlgorithm algorithm, IntegerArrayWithEvents data)
-        { 
-            System.Diagnostics.Stopwatch sw = Stopwatch.StartNew();
-            await algorithm.Run(data);
-            sw.Stop();
-            return sw.ElapsedMilliseconds;
-        }
-
-        private void ButtonAnalyze_OnClick(object sender, RoutedEventArgs e)
+        private async void RunButton_Click(object sender, RoutedEventArgs e)
         {
-            SortingAlgorithmAnalysis analyzer = new SortingAlgorithmAnalysis();
-            analyzer.Show();
-            //if (MessageBox.Show("Warning: This will take some time to run.  Do you want to continue?", "Warning",
-            //        MessageBoxButton.YesNo, MessageBoxImage.Asterisk) == MessageBoxResult.Yes)
-            //{
+            // Disable the controls so they don't change during execution
+            SetActive(false);
+            DataGridAnalysisDisplay.ItemsSource = null; // Clear the grid
 
-            //    //IntegerArrayWithEvents data = new IntegerArrayWithEvents(dataLength, dataLength);
-            //    //data.MixNumbersWithoutEvents(InitialOrderSelected);
-            //    //UpdateLastExecutionTime(sw.ElapsedMilliseconds);
-            //}
+            LogTextBlock.Text =
+                $"Executing {ComboBoxAlgorithm.SelectedValue} for {NumberRuns.SelectedValue} runs up to {ComboBoxDataSize.SelectedValue}.  The data is initialized in a(n) {ComboBoxInitialSortingPolicy.SelectedValue} order\n\n";
+
+            int dataAmount = 0;
+            int incrementAmount = MaximumValue / NumberTestPoints;
+            runs = new List<AnalysisRun>();
+            for (int i = 0; i < NumberTestPoints; i++)
+            {
+                dataAmount += incrementAmount;
+                runs.Add(new AnalysisRun(dataAmount, InitialOrderSelected, GetObjectiveFunction()));
+            }
+
+            foreach (AnalysisRun run in runs)
+            {
+                LogTextBlock.Text += $"Starting to sort {run.NumberItems} items. Is it sorted?= {run.IsSorted()}\n";
+                await run.RunAlgorithmAsyncrhonousForTimer();
+                LogTextBlock.Text += $"Completed sorting {run.NumberItems} items in {run.ExecutionTime} ms. Is it sorted?= {run.IsSorted()}\n";
+            }
+
+            //await Task.Run(() => Parallel.ForEach(runs,
+            //    (run) => run.RunAlgorithmForTimerSynchronous()));
+            UpdateTable();
+
+            MessageBox.Show("Runs completed");
+            SetActive(true);
+        }
+        #endregion
+
+        private void MainWindow1_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+
         }
     }
 

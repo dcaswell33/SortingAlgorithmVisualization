@@ -7,18 +7,9 @@
              mc:Ignorable="d" 
              d:DesignHeight="35" d:DesignWidth="200" Height="35">
     <DockPanel MinWidth="200">
-        <!--<Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="150"/>
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>-->
         <Button x:Name="PlayButton" DockPanel.Dock="Right" Content="Play" Click="playButton_Click" Width="40" Margin="5"></Button>
         <GroupBox Header="Speed" FontSize="8" MinWidth="150">
             <Slider x:Name="SpeedSlider" Margin="5,0,5,0" VerticalAlignment="Top" IsDirectionReversed="True"  ValueChanged="Slider_ValueChanged"/>
         </GroupBox>
-        <!--<Label Content="Speed" HorizontalAlignment="Center" Height="25" VerticalAlignment="Bottom" Width="44"/>-->
-
     </DockPanel>
 </UserControl>
