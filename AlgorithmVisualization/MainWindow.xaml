@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AlgorithmVisualization"
         mc:Ignorable="d"
-        Title="Search Algorithms" Width="600" MaxHeight="800" ContentRendered="MainWindow1_ContentRendered" SizeChanged="MainWindow1_SizeChanged" SizeToContent="Height" WindowStartupLocation="CenterScreen">
+        Title="Search Algorithms" Width="600" MaxHeight="800" ContentRendered="MainWindow1_ContentRendered" SizeToContent="Height" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="400"/>

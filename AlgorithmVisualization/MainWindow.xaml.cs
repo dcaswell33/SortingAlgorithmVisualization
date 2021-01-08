@@ -28,8 +28,6 @@ namespace AlgorithmVisualization
             {
                 string userNameAsSHA = LostOrdering.userNameAsSHA(usernameEntry.userName);
                 Debug.WriteLine(userNameAsSHA);
-
-                //cs220lovessorting
                 if (userNameAsSHA == "fe8f82dd4271c78f269b8e8dc20b66bafda6775f55daf84a48d8ac7199c3276c")
                 {
                     // Show all of the sorts
@@ -129,7 +127,7 @@ namespace AlgorithmVisualization
         {
             string[] codeString = GetObjectiveFunction().CodeString();
 
-            if (codeString.Length == 1) { ToggleCodeWindow(false);  }
+            if (codeString.Length == 1 || _showAllSorts == false) { ToggleCodeWindow(false);  }
             else {
                 ToggleCodeWindow(true);
                 DataGridDisplay.GridLinesVisibility = DataGridGridLinesVisibility.None;
@@ -277,10 +275,6 @@ namespace AlgorithmVisualization
         }
         #endregion
 
-        private void MainWindow1_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-
-        }
     }
 
 }

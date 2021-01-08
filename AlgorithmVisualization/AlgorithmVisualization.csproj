@@ -149,5 +149,8 @@
   <ItemGroup>
     <Resource Include="sortingicon_PBC_icon.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="INSTRUCTOR CODE.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
