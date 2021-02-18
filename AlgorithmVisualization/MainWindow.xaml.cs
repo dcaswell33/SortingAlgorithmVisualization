@@ -4,6 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Markup;
+
 namespace AlgorithmVisualization
 {
     /// <summary>
@@ -75,6 +78,7 @@ namespace AlgorithmVisualization
         private void _data_AlgorithmFinished(EventArgs e)
         {
             ExecutionControl.ResetExecution();
+            SetActive(true);
         }
 
         #region Algorithm Parameterization
@@ -135,14 +139,18 @@ namespace AlgorithmVisualization
                 DataGridDisplay.ItemsSource = GetObjectiveFunction().CodeString().Select(x => new { Value = x }).ToList();
             }
 
-            if (_algorithm != null)
-            {
-                // Stop any execution and re-randomize the data
-                _algorithm.AllowRun = false;
-                ButtonMixData(this, null);
-            }
+            ResetVisualization();
         }
 
+        private void ComboBoxInitialSortingPolicy_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ResetVisualization();
+        }
+
+        private void ComboBoxDataSize_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ResetVisualization();
+        }
         #endregion
 
         private IntegerArrayWithEvents.InitialOrdering InitialOrderSelected
@@ -164,18 +172,26 @@ namespace AlgorithmVisualization
 
         #region Algorithm Visualization
 
+        private void ResetVisualization()
+        {
+            if (_data != null)
+            {
+                if (_algorithm != null) _algorithm.AllowRun = false;
+                int numData = NumDataElementsSelected;
+                //Ensure we don't create too much data for the visualization
+                if (numData > 500) numData = 500;
+
+                if (_data.Count != numData)
+                    _data.ReInitializeData(numData, numData);
+                _data.MixNumbersWithoutEvents(InitialOrderSelected);
+
+                GraphicVisualization?.Setup(_data);
+            }
+        }
+
         private void ButtonMixData(object sender, RoutedEventArgs e)
         {
-            int numData = NumDataElementsSelected;
-            //Ensure we don't create too much data for the visualization
-            if (numData > 500) numData = 500;  
-
-            if (_data.Count != numData)
-                _data.ReInitializeData(numData, numData);
-            _data.MixNumbersWithoutEvents(InitialOrderSelected);
-            if (_algorithm != null) _algorithm.AllowRun = false;
-
-            GraphicVisualization?.Setup(_data);
+            ResetVisualization();
         }
 
         private void executionControl_SpeedChanged(SpeedChangedEventArgs e)
@@ -187,6 +203,7 @@ namespace AlgorithmVisualization
         {
             if (e.Play)
             {
+                SetActive(false);
                 RunAlgorithmForTimer();
             }
             else
@@ -202,6 +219,7 @@ namespace AlgorithmVisualization
             _algorithm = GetObjectiveFunction();
             _algorithm.AllowRun = true;
             await _algorithm.Run(_data);
+
             sw.Stop();
             UpdateLastExecutionTime(sw.ElapsedMilliseconds);
         }
@@ -234,12 +252,21 @@ namespace AlgorithmVisualization
 
         private void SetActive(bool value)
         {
-            ComboBoxInitialSortingPolicy.IsEnabled = value;
-            ComboBoxDataSize.IsEnabled = value;
-            ComboBoxInitialSortingPolicy.IsEnabled = value;
-            ComboBoxAlgorithm.IsEnabled = value;
-            NumberRuns.IsEnabled = value;
-            RunButton.IsEnabled = value;
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.Invoke(new Action(() => SetActive(value)));
+                return;
+            }
+            else
+            {
+                ComboBoxInitialSortingPolicy.IsEnabled = value;
+                ComboBoxDataSize.IsEnabled = value;
+                ComboBoxInitialSortingPolicy.IsEnabled = value;
+                ComboBoxAlgorithm.IsEnabled = value;
+                NumberRuns.IsEnabled = value;
+                RunButton.IsEnabled = value;
+                MixButton.IsEnabled = value;
+            }
         }
         private async void RunButton_Click(object sender, RoutedEventArgs e)
         {
@@ -247,11 +274,16 @@ namespace AlgorithmVisualization
             SetActive(false);
             DataGridAnalysisDisplay.ItemsSource = null; // Clear the grid
 
+            int currentDelay = _data.DelayMs;
+            _data.DelayMs = 0;
+            ExecutionControl.IsEnabled = false;
+
             LogTextBlock.Text =
                 $"Executing {ComboBoxAlgorithm.SelectedValue} for {NumberRuns.SelectedValue} runs up to {ComboBoxDataSize.SelectedValue}.  The data is initialized in a(n) {ComboBoxInitialSortingPolicy.SelectedValue} order\n\n";
 
             int dataAmount = 0;
             int incrementAmount = MaximumValue / NumberTestPoints;
+            
             runs = new List<AnalysisRun>();
             for (int i = 0; i < NumberTestPoints; i++)
             {
@@ -262,7 +294,7 @@ namespace AlgorithmVisualization
             foreach (AnalysisRun run in runs)
             {
                 LogTextBlock.Text += $"Starting to sort {run.NumberItems} items. Is it sorted?= {run.IsSorted()}\n";
-                await run.RunAlgorithmAsyncrhonousForTimer();
+                await run.RunAlgorithmAsynchronousForTimer();
                 LogTextBlock.Text += $"Completed sorting {run.NumberItems} items in {run.ExecutionTime} ms. Is it sorted?= {run.IsSorted()}\n";
             }
 
@@ -270,12 +302,31 @@ namespace AlgorithmVisualization
             //    (run) => run.RunAlgorithmForTimerSynchronous()));
             UpdateTable();
 
+            _data.DelayMs = currentDelay;
+            ExecutionControl.IsEnabled = true;
+
             MessageBox.Show("Runs completed");
             SetActive(true);
         }
         #endregion
 
     }
+    public class Converter : MarkupExtension, IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return object.Equals(value, true) ? "*" : "Auto";
+        }
 
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return this;
+        }
+    }
 }
     

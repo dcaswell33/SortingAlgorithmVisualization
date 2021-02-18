@@ -80,19 +80,18 @@ void Quicksort(int numbers[], int i, int k) {
         private int partition(IntegerArrayWithEvents array, int lBound, int rBound)
         {
             array.TempInteger = array[lBound];  //Pivot
-            _operationCount++;
             int lastSmall = lBound;
             for (int i = lBound + 1; i <= rBound; i++)
             {
+                _operationCount++;
                 if (array[i] < array.TempInteger)
                 {
+                    if (!AllowRun) return lastSmall;
                     lastSmall++;
                     array.Swap(lastSmall, i);
-                    _operationCount+=4;
                 }
             }
             array.Swap(lBound, lastSmall);
-            _operationCount += 3;
             return lastSmall;  //return the division point
         }
 
@@ -100,7 +99,6 @@ void Quicksort(int numbers[], int i, int k) {
         {
             if (lBound < rBound)
             {
-
                 if (!AllowRun) return;
                 int divPt = partition(array, lBound, rBound);
                 quickSort(array, lBound, divPt - 1);
@@ -108,5 +106,33 @@ void Quicksort(int numbers[], int i, int k) {
             }
         }
 
+        /// <summary>
+        /// Answer the questions (in order) - must have unique substring to compare:
+        /// 1) worst case random order
+        /// 2) worst case ascending order
+        /// 3) worst case descending order
+        /// 4) attributes from listSorting Algorithms
+        ///     Works on sections of the data, then moves to the next section
+        ///     Makes complete passes of the data to incorporate each element into a sorted list
+        ///     Appears to use separate values into smaller and larger groups without explicit sort
+        ///     Sorts in groups and combines those groups
+        ///     Moves values into final position immediately (not to some other place first)
+        ///     (Some) data values are moved many times in succession before arriving at sorted position
+        ///     Run-time is dramatically different depending on initial order of values
+        /// 5) what sorting algorithm is it
+        /// </summary>
+        public override string[] QuestionAnswers => new string[] {
+            "o(nlogn)",
+            "o(n^2)",
+            "o(n^2)",
+            "works on sections of the data",
+            //"complete passes",
+            "separate values into smaller and larger",
+            //"sorts in groups and combines",
+            //"final position immediately",
+            "moved many times in succession",
+            "dramatically different depending",
+            "quick sort"
+            };
     }
 }

@@ -5,23 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AlgorithmVisualization"
         mc:Ignorable="d"
-        Title="Key Generator" SizeToContent="Height" Width="400">
+        Title="Key Generator" SizeToContent="Height" Width="450">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
-            <RowDefinition Height="300" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0"  HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Enter a list of student emails as either comma separated or per line separated who are enrolled in the course and generates the list of which search algorithms they are assigned." VerticalAlignment="Top" Height="50" Width="375"/>
-        <Border Grid.Row="1" BorderBrush="Black" BorderThickness="1">
-            <TextBox x:Name="studentEmailTextBox" Width="390" Height="300" Margin="5" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
-        </Border>
+        <Border Grid.Row="1" BorderBrush="Black" BorderThickness="1"/>
         <WrapPanel Grid.Row="2" Margin="10,5,5,5">
+            <Button Name="btnLoadXLSX" Click="btnLoadXLSX_Click" Width="120">Load Survey XLSX</Button>
+            <TextBlock HorizontalAlignment="Left" Height="20" Margin="20,0,0,0"  
+                 Text="" VerticalAlignment="Top" Width="260" Name="FileNameLoadTextBox" />
+        </WrapPanel>
+        <!--<WrapPanel Grid.Row="3" Margin="10,5,5,5">
             <Button Name="btnSaveFile" Click="btnSaveFile_Click" Width="80">Save to</Button>
             <TextBlock HorizontalAlignment="Left" Height="20" Margin="20,0,0,0"  
                  Text="" VerticalAlignment="Top" Width="260" Name="FileNameSaveTextBox" />
-        </WrapPanel>
-        <Button Grid.Row="3" Content="Go" Click="Button_Click" Margin="10" />
+        </WrapPanel>-->
+        <Button Grid.Row="4" Content="Go" Click="Button_Click" Margin="10" />
     </Grid>
  </Window>

@@ -5,18 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AlgorithmVisualization"
         mc:Ignorable="d"
-        Title="Search Algorithms" Width="600" MaxHeight="800" ContentRendered="MainWindow1_ContentRendered" SizeToContent="Height" WindowStartupLocation="CenterScreen">
+        Title="Search Algorithms" Width="600" ContentRendered="MainWindow1_ContentRendered" SizeToContent="Height" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="400"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="*" MinHeight="400"/>
+            <RowDefinition Height="{Binding IsExpanded, ElementName=Stretchy, Converter={local:Converter}}" MinHeight="28" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="45"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="30"/>
-                <RowDefinition Height="45"/>
+                <RowDefinition Height="48"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <!--<ColumnDefinition Width="39*"/>-->
@@ -35,14 +35,14 @@
                     SelectionChanged="comboBoxAlgorithm_SelectionChanged"/>
                 </GroupBox>
                 <GroupBox Header="Initial Order" FontSize="8" Grid.Column="1" Grid.Row="0" >
-                    <ComboBox x:Name="ComboBoxInitialSortingPolicy" Margin="5" SelectedIndex="0">
+                    <ComboBox x:Name="ComboBoxInitialSortingPolicy" Margin="5" SelectedIndex="0" SelectionChanged="ComboBoxInitialSortingPolicy_SelectionChanged">
                         <ComboBoxItem>Random</ComboBoxItem>
                         <ComboBoxItem>Ascending</ComboBoxItem>
                         <ComboBoxItem>Descending</ComboBoxItem>
                     </ComboBox>
                 </GroupBox>
                 <GroupBox Header="Number of Elements" FontSize="8" Grid.Column="2">
-                    <ComboBox x:Name="ComboBoxDataSize" Margin="5" SelectedValuePath="Content" SelectedIndex="2">
+                    <ComboBox x:Name="ComboBoxDataSize" Margin="5" SelectedValuePath="Content" SelectedIndex="2" SelectionChanged="ComboBoxDataSize_SelectionChanged">
                         <ComboBoxItem>10</ComboBoxItem>
                         <ComboBoxItem>50</ComboBoxItem>
                         <ComboBoxItem>100</ComboBoxItem>
@@ -57,10 +57,10 @@
 
             <local:ControlChartDisplay x:Name="GraphicVisualization" Grid.Column="0" Margin="0,0,0.2,0.2" Grid.Row="1" />
             <DockPanel Grid.Column="0" Grid.ColumnSpan="2" Margin="2" Grid.Row="3" VerticalAlignment="Top">
-                <Button x:Name="MixButton" DockPanel.Dock="Left" Content="Initialize" Click="ButtonMixData" Width="55" Height="35" VerticalAlignment="Center"></Button>
+                <Button x:Name="MixButton" DockPanel.Dock="Left" Content="Refresh" Click="ButtonMixData" Width="55" Height="35" VerticalAlignment="Center"></Button>
 
                 <local:ExecutionControl x:Name="ExecutionControl" Height="44" VerticalAlignment="Center" 
-                                SpeedChanged="executionControl_SpeedChanged" StartStopChanged="executionControl_StartStopChanged"/>
+                                SpeedChanged="executionControl_SpeedChanged" StartStopChanged="executionControl_StartStopChanged" />
             </DockPanel>
 
             <DataGrid x:Name="DataGridDisplay" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
@@ -70,7 +70,7 @@
 
             </DockPanel>
         </Grid>
-        <Expander Grid.Row="1" Header="Analyze">
+        <Expander x:Name="Stretchy" IsExpanded="False" Grid.Row="1" Header="Analyze" VerticalAlignment="Stretch">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>

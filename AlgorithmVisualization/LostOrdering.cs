@@ -12,6 +12,8 @@ namespace AlgorithmVisualization
         public static string userNameAsSHA(string userName)
         {
             string hashedString = userName.ToLower();
+            int indexAt = hashedString.IndexOf('@');
+            if (indexAt > 0) hashedString = hashedString.Substring(0, indexAt);
             if (hashedString.Length < 10) hashedString += "1234567879012354";
             hashedString = hashedString.Substring(0, 10);
 
@@ -48,8 +50,13 @@ namespace AlgorithmVisualization
             {
                 if (!subclass.IsAbstract)
                 {
-                    lostAlgorithms.Add(subclass);
-                    count++;
+                    Algorithms.AbstractAlgorithm tempAlgorithm = 
+                        (Algorithms.AbstractAlgorithm)Activator.CreateInstance(subclass);
+                    if (tempAlgorithm.GenerateLostSort)
+                    {
+                        lostAlgorithms.Add(subclass);
+                        count++;
+                    }
                 }
             }
             List<int> order = new List<int>();

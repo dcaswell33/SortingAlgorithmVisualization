@@ -24,7 +24,7 @@ namespace AlgorithmVisualization
 
         public bool IsSorted() => _data.TestIfIsSortedAscending();
 
-        public async Task RunAlgorithmAsyncrhonousForTimer()
+        public async Task RunAlgorithmAsynchronousForTimer()
         {
             //System.Diagnostics.Debug.WriteLine("Running with " + _data.Count + ".  Sorted? " + _data.TestIfIsSortedAscending());
             System.Diagnostics.Stopwatch sw = Stopwatch.StartNew();
